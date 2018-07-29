@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="swt">
+    <CLASSES>
+      <root url="jar://D:/Android/SDK/tools/lib/x86_64/swt.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

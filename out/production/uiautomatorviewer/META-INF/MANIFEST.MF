@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: swt.jar common-26.0.0-dev.jar ddmlib-26.0.0-dev.jar guava-
- 22.0.jar org-eclipse-core-commands-3.6.0.jar org-eclipse-equinox-comm
- on-3.6.0.jar org-eclipse-jface-3.6.2.jar
-Main-Class: com.android.uiautomator.UiAutomatorViewer
-

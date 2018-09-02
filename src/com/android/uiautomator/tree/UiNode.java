@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.uiautomator.tree;
 
 import java.util.Collections;
@@ -6,46 +22,50 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class UiNode
-        extends BasicTreeNode {
-    private static final Pattern BOUNDS_PATTERN = Pattern.compile("\\[-?(\\d+),-?(\\d+)\\]\\[-?(\\d+),-?(\\d+)\\]");
-    private final Map<String, String> mAttributes = new LinkedHashMap();
+public class UiNode extends BasicTreeNode {
+    private static final Pattern BOUNDS_PATTERN = Pattern
+            .compile("\\[-?(\\d+),-?(\\d+)\\]\\[-?(\\d+),-?(\\d+)\\]");
+    // use LinkedHashMap to preserve the order of the attributes
+//    private final Map<String, String> mAttributes = new LinkedHashMap<String, String>();
+    private Map<String, String> mAttributes = new LinkedHashMap<String, String>();
     private String mDisplayName = "ShouldNotSeeMe";
     private Object[] mCachedAttributesArray;
 
     public void addAtrribute(String key, String value) {
-        this.mAttributes.put(key, value);
+        mAttributes.put(key, value);
         updateDisplayName();
         if ("bounds".equals(key)) {
             updateBounds(value);
         }
     }
 
+    @Override
     public Map<String, String> getAttributes() {
-        return Collections.unmodifiableMap(this.mAttributes);
+        return mAttributes;
+//        return Collections.unmodifiableMap(mAttributes);
     }
 
+    /**
+     * Builds the display name based on attributes of the node
+     */
     private void updateDisplayName() {
-        String className = (String) this.mAttributes.get("class");
-        if (className == null) {
+        String className = mAttributes.get("class");
+        if (className == null)
             return;
-        }
-        String text = (String) this.mAttributes.get("text");
-        if (text == null) {
+        String text = mAttributes.get("text");
+        if (text == null)
             return;
-        }
-        String contentDescription = (String) this.mAttributes.get("content-desc");
-        if (contentDescription == null) {
+        String contentDescription = mAttributes.get("content-desc");
+        if (contentDescription == null)
             return;
-        }
-        String index = (String) this.mAttributes.get("index");
-        if (index == null) {
+        String index = mAttributes.get("index");
+        if (index == null)
             return;
-        }
-        String bounds = (String) this.mAttributes.get("bounds");
+        String bounds = mAttributes.get("bounds");
         if (bounds == null) {
             return;
         }
+        // shorten the standard class names, otherwise it takes up too much space on UI
         className = className.replace("android.widget.", "");
         className = className.replace("android.view.", "");
         StringBuilder builder = new StringBuilder();
@@ -64,39 +84,43 @@ public class UiNode
         }
         builder.append(' ');
         builder.append(bounds);
-        this.mDisplayName = builder.toString();
+        mDisplayName = builder.toString();
     }
 
     private void updateBounds(String bounds) {
         Matcher m = BOUNDS_PATTERN.matcher(bounds);
         if (m.matches()) {
-            this.x = Integer.parseInt(m.group(1));
-            this.y = Integer.parseInt(m.group(2));
-            this.width = (Integer.parseInt(m.group(3)) - this.x);
-            this.height = (Integer.parseInt(m.group(4)) - this.y);
-            this.mHasBounds = true;
+            x = Integer.parseInt(m.group(1));
+            y = Integer.parseInt(m.group(2));
+            width = Integer.parseInt(m.group(3)) - x;
+            height = Integer.parseInt(m.group(4)) - y;
+            mHasBounds = true;
         } else {
             throw new RuntimeException("Invalid bounds: " + bounds);
         }
     }
 
+    @Override
     public String toString() {
-        return this.mDisplayName;
+        return mDisplayName;
     }
 
     public String getAttribute(String key) {
-        return (String) this.mAttributes.get(key);
+        return mAttributes.get(key);
     }
 
+    @Override
     public Object[] getAttributesArray() {
-        int i;
-        if (this.mCachedAttributesArray == null) {
-            this.mCachedAttributesArray = new Object[this.mAttributes.size()];
-            i = 0;
-            for (String attr : this.mAttributes.keySet()) {
-                this.mCachedAttributesArray[(i++)] = new AttributePair(attr, (String) this.mAttributes.get(attr));
+        // this approach means we do not handle the situation where an attribute is added
+        // after this function is first called. This is currently not a concern because the
+        // tree is supposed to be readonly
+        if (mCachedAttributesArray == null) {
+            mCachedAttributesArray = new Object[mAttributes.size()];
+            int i = 0;
+            for (String attr : mAttributes.keySet()) {
+                mCachedAttributesArray[i++] = new AttributePair(attr, mAttributes.get(attr));
             }
         }
-        return this.mCachedAttributesArray;
+        return mCachedAttributesArray;
     }
 }

@@ -1,40 +1,57 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.uiautomator.actions;
 
 import com.android.uiautomator.UiAutomatorViewer;
 import com.google.common.io.Files;
-
-import java.io.File;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 
-public class SaveScreenShotAction
-        extends Action {
+import java.io.File;
+
+public class SaveScreenShotAction extends Action {
     private static final String PNG_TYPE = ".png";
     private static final String UIX_TYPE = ".uix";
     private UiAutomatorViewer mViewer;
-
     public SaveScreenShotAction(UiAutomatorViewer viewer) {
         super("&Save");
-        this.mViewer = viewer;
+        mViewer = viewer;
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor() {
         return ImageHelper.loadImageDescriptorFromResource("images/save.png");
     }
 
+    @Override
     public void run() {
-        final Image screenshot = this.mViewer.getScreenShot();
-        final File model = this.mViewer.getModelFile();
-        if ((model == null) || (screenshot == null)) {
+        final Image screenshot = mViewer.getScreenShot();
+        final File model = mViewer.getModelFile();
+        if (model == null || screenshot == null) {
             return;
         }
         DirectoryDialog dd = new DirectoryDialog(Display.getDefault().getActiveShell());
@@ -43,29 +60,33 @@ public class SaveScreenShotAction
         if (path == null) {
             return;
         }
-        new Thread() {
+
+        // to prevent blocking the ui thread, we do the saving in the other thread.
+        new Thread(){
             String filepath;
-
+            @Override
             public void run() {
-                this.filepath = new File(path, model.getName()).toString();
-                this.filepath = this.filepath.substring(0, this.filepath.lastIndexOf("."));
+                filepath = new File(path, model.getName()).toString();
+                filepath = filepath.substring(0,filepath.lastIndexOf("."));
                 ImageLoader imageLoader = new ImageLoader();
-
-                imageLoader.data = new ImageData[]{screenshot.getImageData()};
+                imageLoader.data = new ImageData[] {
+                        screenshot.getImageData() };
                 try {
-                    imageLoader.save(this.filepath + ".png", 5);
-                    Files.copy(model, new File(this.filepath + ".uix"));
-                } catch (Exception e) {
+                    imageLoader.save(filepath + PNG_TYPE, SWT.IMAGE_PNG);
+                    Files.copy(model, new File(filepath + UIX_TYPE));
+                } catch (final Exception e) {
                     Display.getDefault().syncExec(new Runnable() {
+                        @Override
                         public void run() {
-                            Status status = new Status(IStatus.ERROR, "Error writing file", e.getLocalizedMessage());
+                            Status status = new Status(IStatus.ERROR,
+                                    "Error writing file", e.getLocalizedMessage());
                             ErrorDialog.openError(Display.getDefault().getActiveShell(),
-                                    String.format("Error writing %s.uix", filepath), e
-                                            .getLocalizedMessage(), status);
+                                    String.format("Error writing %s.uix", filepath),
+                                    e.getLocalizedMessage(), status);
                         }
                     });
                 }
-            }
+            };
         }.start();
     }
 }

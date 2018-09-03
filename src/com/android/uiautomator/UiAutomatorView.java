@@ -228,10 +228,10 @@ public class UiAutomatorView extends Composite {
                     int x = getInverseScaledSize(e.x - mDx);
                     int y = getInverseScaledSize(e.y - mDy);
 
-                    int absX = x * 100 / mDeviceWidth; //百分比坐标 --by brian
-                    int absY = y * 100 / mDeviceHeight;//百分比坐标 --by brian
+                    int relativeX = x * 100 / mDeviceWidth; //百分比坐标 --by brian
+                    int relativeY = y * 100 / mDeviceHeight;//百分比坐标 --by brian
                     // show coordinate
-                    coordinateLabel.setText("(" + x + "," + y +") | " + "(" + absX + "," + absY +")");
+                    coordinateLabel.setText("(" + x + "," + y +") | " + "(" + relativeX + "," + relativeY +")");
 //                    coordinateLabel.setText(String.format("(%d,%d,%s,%d,%d)", x,y + "|" + absX, absY));
                     if (mModel.isExploreMode()) {
                         BasicTreeNode node = mModel.updateSelectionForCoordinates(x, y);
@@ -283,18 +283,27 @@ public class UiAutomatorView extends Composite {
         // both are composites with borders, so that the horizontal divider can be highlighted by
         // the borders
         SashForm rightSash = new SashForm(baseSash, SWT.VERTICAL);
+
+        //将坐标单独放在一个composite里，防止随着坐标的变动导致图标变动
+        Composite topRightBase = new Composite(rightSash, SWT.BORDER);
+        topRightBase.setLayout(new GridLayout(1, false));
+        ToolBarManager coordinateToolBarManager = new ToolBarManager(SWT.FLAT);
+        ToolBar coordinateToolbar = coordinateToolBarManager.createControl(topRightBase);
+        coordinateLabel = new ToolItem(coordinateToolbar, SWT.SIMPLE);
+        coordinateLabel.setText("Coordinate | Relative coordinate");
+        coordinateLabel.setEnabled(false);
+        coordinateToolbar.pack();
+        coordinateToolbar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
         // upper-right base contains the toolbar and the tree
         Composite upperRightBase = new Composite(rightSash, SWT.BORDER);
         upperRightBase.setLayout(new GridLayout(1, false));
-
         ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT); //Default is SWT.FLAT --brian
         toolBarManager.add(new ExpandAllAction(this));
         toolBarManager.add(new ToggleNafAction(this));
+
         ToolBar searchtoolbar = toolBarManager.createControl(upperRightBase);
 
-        coordinateLabel = new ToolItem(searchtoolbar, SWT.SIMPLE);
-        coordinateLabel.setText("坐标|相对坐标");
-        coordinateLabel.setEnabled(false);
         // add search box and navigation buttons for search results
         ToolItem itemSeparator = new ToolItem(searchtoolbar, SWT.SEPARATOR | SWT.RIGHT);
         searchTextarea = new Text(searchtoolbar, SWT.BORDER | SWT.SINGLE | SWT.SEARCH);
@@ -304,9 +313,11 @@ public class UiAutomatorView extends Composite {
         itemPrev = new ToolItem(searchtoolbar, SWT.SIMPLE);
         itemPrev.setImage(ImageHelper.loadImageDescriptorFromResource("images/prev.png")
                 .createImage());
+        itemPrev.setToolTipText("Previous search");
         itemNext = new ToolItem(searchtoolbar, SWT.SIMPLE);
         itemNext.setImage(ImageHelper.loadImageDescriptorFromResource("images/next.png")
                 .createImage());
+        itemNext.setToolTipText("Next search");
         itemDeleteAndInfo = new ToolItem(searchtoolbar, SWT.SIMPLE);
         itemDeleteAndInfo.setImage(ImageHelper.loadImageDescriptorFromResource("images/delete.png")
                 .createImage());
@@ -438,6 +449,7 @@ public class UiAutomatorView extends Composite {
         });
         // sets the ratio of the vertical split: left 5 vs right 3
         baseSash.setWeights(new int[] {2, 5});
+        rightSash.setWeights(new int[] {1, 8, 8});
     }
 
     protected void prevSearchResult() {

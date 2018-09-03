@@ -50,7 +50,7 @@ public class UiAutomatorModel {
         UiHierarchyXmlLoader loader = new UiHierarchyXmlLoader();
         BasicTreeNode rootNode = loader.parseXml(xmlDumpFile.getAbsolutePath());
         if (rootNode == null) {
-            System.err.println("null rootnode after parsing.");
+            System.err.println("null root node after parsing.");
             throw new IllegalArgumentException("Invalid ui automator hierarchy file.");
         }
 

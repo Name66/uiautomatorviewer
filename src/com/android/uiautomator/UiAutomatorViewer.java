@@ -23,15 +23,12 @@ import com.android.uiautomator.actions.ScreenshotAction;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.*;
 
 import java.io.File;
 
@@ -59,6 +56,7 @@ public class UiAutomatorViewer extends ApplicationWindow {
         toolBarManager.add(new ScreenshotAction(this,false));
         toolBarManager.add(new ScreenshotAction(this,true));
         toolBarManager.add(new SaveScreenShotAction(this));
+
         ToolBar tb = toolBarManager.createControl(c);
         tb.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
@@ -85,7 +83,7 @@ public class UiAutomatorViewer extends ApplicationWindow {
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-        newShell.setText("UiAutomatorViewer @Brian v1.1.1");
+        newShell.setText("UiAutomatorViewer_V2.0 @Brian");
     }
 
     @Override

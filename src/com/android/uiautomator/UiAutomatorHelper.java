@@ -88,12 +88,15 @@ public class UiAutomatorHelper {
         CountDownLatch commandCompleteLatch = new CountDownLatch(1);
 
         try {
+            /** Default code start * /
             device.executeShellCommand(
                     command,
                     new CollectingOutputReceiver(commandCompleteLatch),
                     XML_CAPTURE_TIMEOUT_SEC * 1000);
             commandCompleteLatch.await(XML_CAPTURE_TIMEOUT_SEC, TimeUnit.SECONDS);
-
+             /** Default code end */
+            device.executeShellCommand(command,new CollectingOutputReceiver(commandCompleteLatch),
+                    XML_CAPTURE_TIMEOUT_SEC * 1000, TimeUnit.SECONDS);
             monitor.subTask("Pull UI XML snapshot from device...");
             device.getSyncService().pullFile(UIDUMP_DEVICE_PATH,
                     dst.getAbsolutePath(), SyncService.getNullProgressMonitor());

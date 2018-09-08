@@ -83,7 +83,7 @@ public class UiAutomatorViewer extends ApplicationWindow {
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-        newShell.setText("UiAutomatorViewer_V2.0 @Brian");
+        newShell.setText("UiAutomatorViewer_V2.1 @Brian");
     }
 
     @Override

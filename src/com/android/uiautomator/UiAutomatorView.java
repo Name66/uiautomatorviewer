@@ -105,6 +105,9 @@ public class UiAutomatorView extends Composite {
     private Cursor mOrginialCursor;
     private ToolItem itemPrev, itemNext;
     private ToolItem coordinateLabel;
+    private ToolItem coordinateInfoLabel;
+    private ToolItem searchResultLabel;
+    private ToolItem searchResult;
 
     private String mLastSearchedTerm;
 
@@ -286,12 +289,29 @@ public class UiAutomatorView extends Composite {
 
         //将坐标单独放在一个composite里，防止随着坐标的变动导致图标变动
         Composite topRightBase = new Composite(rightSash, SWT.BORDER);
-        topRightBase.setLayout(new GridLayout(1, false));
+        topRightBase.setLayout(new GridLayout(4, false));
         ToolBarManager coordinateToolBarManager = new ToolBarManager(SWT.FLAT);
         ToolBar coordinateToolbar = coordinateToolBarManager.createControl(topRightBase);
+        //坐标标签显示
+        coordinateInfoLabel = new ToolItem(coordinateToolbar, SWT.SIMPLE);
+        coordinateInfoLabel.setText("Coordinate Info:");
+        coordinateInfoLabel.setEnabled(false);
+
+        //坐标值包括实际坐标和相对坐标
         coordinateLabel = new ToolItem(coordinateToolbar, SWT.SIMPLE);
-        coordinateLabel.setText("Coordinate | Relative coordinate");
+        coordinateLabel.setText("[Actual Coordinate | Relative coordinate]");
         coordinateLabel.setEnabled(false);
+
+        //搜索结果标签显示
+        searchResultLabel = new ToolItem(coordinateToolbar, SWT.SIMPLE);
+        searchResultLabel.setText("&&&&  Search Result:");
+        searchResultLabel.setEnabled(false);
+
+        //搜索控件的结果，在不搜索的情况下，置为Null
+        searchResult = new ToolItem(coordinateToolbar, SWT.SIMPLE);
+        searchResult.setText("[Null]");
+        searchResult.setEnabled(false);
+
         coordinateToolbar.pack();
         coordinateToolbar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
@@ -466,7 +486,8 @@ public class UiAutomatorView extends Composite {
         updateSearchResultSelection();
     }
     protected void clearSearchResult() {
-        itemDeleteAndInfo.setText("");
+//        itemDeleteAndInfo.setText("");
+        searchResult.setText("Null");
         mSearchResult = null;
         mSearchResultIndex = 0;
         mLastSearchedTerm = "";
@@ -485,8 +506,9 @@ public class UiAutomatorView extends Composite {
 
     private void updateSearchResultSelection() {
         updateTreeSelection(mSearchResult.get(mSearchResultIndex));
-        itemDeleteAndInfo.setText("" + (mSearchResultIndex + 1) + "/"
-                + mSearchResult.size());
+        searchResult.setText("" + (mSearchResultIndex + 1) + "/" + mSearchResult.size());
+//        itemDeleteAndInfo.setText("" + (mSearchResultIndex + 1) + "/"
+//                + mSearchResult.size());
     }
 
     private int getScaledSize(int size) {
